@@ -1,0 +1,11 @@
+from starlette.config import Config
+
+config = Config(".env")
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
+SESSION_SECRET = config("SESSION_SECRET")
+JWT_SECRET_KEY = config("JWT_SECRET_KEY")
+DATABASE_URL = config("DATABASE_URL")
+ALGORITHM = "HS256"
+GEMINI_API_KEY = config("GEMINI_API_KEY")

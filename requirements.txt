@@ -1,0 +1,12 @@
+fastapi
+pydantic
+email-validator
+authlib
+psycopg[binary]
+uvicorn
+sqlalchemy
+python-jose
+httpx
+itsdangerous
+pypdf
+passlib[bcrypt]
