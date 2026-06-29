@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"
 import axios from "axios";
+import { use } from "react";
 
 export default function UserLogin() {
-
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -12,7 +14,7 @@ export default function UserLogin() {
   });
 
   const [loading, setLoading] = useState(false);
-
+ 
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,49 +23,33 @@ export default function UserLogin() {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     try {
-
       setLoading(true);
-
       const response = await axios.post(
         "http://localhost:8070/auth/user/login",
         formData
       );
-
-      localStorage.setItem(
-        "access_token",
-        response.data.access_token
-      );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.user)
-      );
-
+      console.log(response);
+      const userData = response.data.user;
+      const tokenData = response.data.access_token;
+      const userRole = response.data.role; 
+      login(userData, tokenData, userRole); 
       navigate("/user/dashboard");
-
     } catch (error) {
-
+      console.log(error);
       alert(
         error.response?.data?.detail ||
         "Login failed"
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-
         <h1 className="text-3xl font-bold text-center mb-2">
           Welcome Back
         </h1>
@@ -72,11 +58,7 @@ export default function UserLogin() {
           Sign in to your account
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
-
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block mb-2 font-medium">
               Email
@@ -116,24 +98,17 @@ export default function UserLogin() {
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
-
         </form>
 
         <div className="mt-6 text-center">
-
           <p>
             Don't have an account?
-
             <Link to="/user/register" className="text-blue-600 ml-2">
               Register
             </Link>
-
           </p>
-
         </div>
-
       </div>
-
     </div>
   );
 }

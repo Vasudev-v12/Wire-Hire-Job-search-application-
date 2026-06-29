@@ -1,20 +1,19 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-export default function ProtectedRoute({
-  children,
-  role
-}) {
+export default function ProtectedRoute({ children, role }) {
+    const { token, role: userRole } = useAuth(); 
+    console.log("Protected Route Check - Current Token:", token);
+    console.log("Protected Route Check - Expected Role:", role, " | User Role:", userRole);
+    
+    if (!token) {
+        return <Navigate to="/user/login" replace />;
+    }
 
-  const token = localStorage.getItem("access_token");
-  const userRole = localStorage.getItem("role");
+    if (role && userRole?.toLowerCase() !== role?.toLowerCase()) {
+        console.warn(`Access Denied! ${userRole} does not match required role: ${role}`);
+        return <Navigate to="/" replace />;
+    }
 
-  if (!token) {
-    return <Navigate to="/" />;
-  }
-
-  if (userRole !== role) {
-    return <Navigate to="/" />;
-  }
-
-  return children;
+    return children;
 }

@@ -12,8 +12,9 @@ from api_server.envConfig import SESSION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT
 from api_server.envConfig import config
 from api_server.db import SessionLocal, User
 from api_server.schemas import UserRegister, UserLogin, UserProfile
-from api_server.security import hash_password
+from api_server.db import UserProfile as dbUserProfile
 from api_server.security import (
+    hash_password,
     verify_password,
     create_access_token
 )
@@ -24,11 +25,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 security = HTTPBearer()
 app = FastAPI()
 
-# app.add_middleware(
-#     SessionMiddleware, 
-#     secret_key=SESSION_SECRET,
-# )
 app = FastAPI()
+
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=SESSION_SECRET,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,7 +99,7 @@ def create_access_token(data: dict, expires_minutes: int = ACCESS_TOKEN_EXPIRE_M
 @app.get("/")
 async def home():
     return {
-        "message": "Google auth API running",
+        "message": "You have Reached Wire-Hire API Server",
         "login_url": "/login"
     }
 
@@ -123,11 +125,7 @@ def get_profile(current_user: User = Depends(get_current_user), db: Session = De
 @app.post("/auth/user/register")
 def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     existing_user = (
-        db.query(User)
-        .filter(
-            User.email == payload.email
-        )
-        .first()
+        db.query(User).filter(User.email == payload.email).first()
     )
 
     if existing_user:
@@ -157,7 +155,15 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
 
     db.add(profile)
     db.commit()
-
+    print({"success": True,
+        "message": "User registered successfully",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "first_name": profile.first_name,
+            "last_name": profile.last_name
+        }
+    })
     return {
         "success": True,
         "message": "User registered successfully",
@@ -185,7 +191,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     if not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=401,
-            detail="Invalid email or password"
+            detail="Invalid password"
         )
 
     token = create_access_token(
@@ -197,32 +203,60 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     )
 
     profile = (
-        db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
+        db.query(dbUserProfile).filter(dbUserProfile.user_id == user.id).first()
     )
     if not profile:
+        print({
+            "success": True,
+            "access_token": token,
+            "token_type": "bearer",
+            "profile": False,
+            "role": "user",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+            },
+        })
         return {
             "success": True,
             "access_token": token,
             "token_type": "bearer",
-            "profile": "false",
+            "profile": False,
+            "role": "user",
             "user": {
                 "id": user.id,
                 "email": user.email,
             },
         }
-    return {
-        "success": True,
-        "access_token": token,
-        "token_type": "bearer",
-        "profile":"true",
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "first_name": profile.first_name,
-            "last_name": profile.last_name,
-            "profile_picture": profile.profile_picture
+    else:
+        print({
+            "success": True,
+            "access_token": token,
+            "token_type": "bearer",
+            "profile":True,
+            "role": "user",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "first_name": profile.first_name,
+                "last_name": profile.last_name,
+                "profile_picture": profile.profile_picture
+            }
+        })
+        return {
+            "success": True,
+            "access_token": token,
+            "token_type": "bearer",
+            "profile":True,
+            "role": "user",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "first_name": profile.first_name,
+                "last_name": profile.last_name,
+                "profile_picture": profile.profile_picture
+            }
         }
-    }
 
 
 # @app.get("/auth/google/login")
