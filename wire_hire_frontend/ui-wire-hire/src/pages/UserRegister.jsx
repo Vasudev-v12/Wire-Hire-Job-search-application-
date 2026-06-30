@@ -52,7 +52,7 @@ export default function UserRegister() {
         res.data.access_token
       );
 
-      navigate("/user/dashboard");
+      navigate("/user/login");
     } catch (err) {
       console.log(err.response.data);
       setError(
