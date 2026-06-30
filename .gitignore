@@ -2,3 +2,4 @@
 venv
 /api_server/__pycache__
 node_modules
+user_data
