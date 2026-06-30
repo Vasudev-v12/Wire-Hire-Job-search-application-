@@ -84,10 +84,10 @@ export default function Profile() {
             </h2>
 
             <div className="grid grid-cols-2 gap-5">
-              <input placeholder="Full Name" className="input" />
-              <input placeholder="Email" className="input" />
-              <input placeholder="Phone Number" className="input" />
-              <input placeholder="Location" className="input" />
+              <input placeholder="Full Name" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Email" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Phone Number" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Location" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
           </div>
 
@@ -99,10 +99,10 @@ export default function Profile() {
             </h2>
 
             <div className="grid grid-cols-2 gap-5">
-              <input placeholder="Current Role" className="input" />
-              <input placeholder="Experience (Years)" className="input" />
-              <input placeholder="Expected Salary" className="input" />
-              <input placeholder="Preferred Location" className="input" />
+              <input placeholder="Current Role" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Experience (Years)" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Expected Salary" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <input placeholder="Preferred Location" className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
 
             <textarea
@@ -131,7 +131,7 @@ export default function Profile() {
 
                 <input
                   placeholder="https://github.com/username"
-                  className="input"
+                 className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -140,7 +140,7 @@ export default function Profile() {
 
                 <input
                   placeholder="https://linkedin.com/in/username"
-                  className="input"
+                 className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>

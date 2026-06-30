@@ -1,8 +1,38 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
+class UserProfileBase(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+    phone: Optional[str] = None
+    location: Optional[str] = None
+
+    headline: Optional[str] = None
+    summary: Optional[str] = None
+
+    current_role: Optional[str] = None
+    experience: Optional[str] = None
+
+    skills: Optional[str] = None
+    education: Optional[str] = None
+
+    github: Optional[str] = None
+    linkedin: Optional[str] = None
+    portfolio: Optional[str] = None
+
+class UserProfileUpdate(UserProfileBase):
+    pass
+
+class UserProfileResponse(UserProfileBase):
+    id: int
+    user_id: int
+    profile_picture: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
 class UserRegister(BaseModel):
-    full_name: str
+    first_name: str
+    last_name: str
     email: EmailStr
     password: str
 

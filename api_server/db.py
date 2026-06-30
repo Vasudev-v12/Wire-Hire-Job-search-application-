@@ -1,16 +1,41 @@
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import Column, DateTime, Integer, String, create_engine, Text, Boolean, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from api_server.envConfig import DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    phone = Column(String(20))
+    location = Column(String(150))
+    headline = Column(String(200))
+    summary = Column(Text)
+    current_role = Column(String(150))
+    experience = Column(String(100))
+    skills = Column(Text)
+    education = Column(Text)
+    github = Column(String(255))
+    linkedin = Column(String(255))
+    portfolio = Column(String(255))
+    profile_picture = Column(String(255))
+    user = relationship("User", back_populates="profile")
+
 class User(Base):
     __tablename__ = "users"
-    full_name = Column(String)
     id = Column(Integer, primary_key=True, index=True)
     email = Column(
         String,
@@ -27,7 +52,6 @@ class User(Base):
         unique=True,
         nullable=True
     )
-    profile_picture = Column(String)
     is_google_account = Column(
         Boolean,
         default=False
@@ -42,24 +66,42 @@ class User(Base):
     )
     last_login = Column(DateTime)
 
-class UserProfile(Base):
-    __tablename__ = "user_profiles"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id"),
-        unique=True,
-        nullable=False
+    profile = relationship(
+        "UserProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
     )
-    first_name = Column(String)
-    last_name = Column(String)
-    phone = Column(String)
-    location = Column(String)
-    linkedin = Column(String)
-    github = Column(String)
-    portfolio = Column(String)
-    headline = Column(String)
-    summary = Column(Text)
+
+    resumes = relationship(
+        "Resume",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    applications = relationship(
+        "JobApplication",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    educations = relationship(
+        "Education",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    experiences = relationship(
+        "Experience",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    skills = relationship(
+        "Skill",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
 class Company(Base):
     __tablename__ = "companies"
@@ -75,6 +117,11 @@ class Company(Base):
     is_active = Column(
         Boolean,
         default=True
+    )
+    jobs = relationship(
+        "Job",
+        back_populates="company",
+        cascade="all, delete-orphan"
     )
 
 class Admin(Base):
@@ -108,6 +155,14 @@ class Job(Base):
     application_deadline = Column(Date)
     vacancies = Column(Integer)
     remote_allowed = Column(Boolean)
+    company = relationship(
+        "Company",
+        back_populates="jobs"
+    )
+    applications = relationship(
+        "JobApplication",
+        back_populates="jobs"
+    )
 
 class JobApplication(Base):
     __tablename__ = "job_applications"
@@ -126,7 +181,7 @@ class JobApplication(Base):
     )
     applied_at = Column(
         DateTime,
-        default=datetime.now(timezone.utc)
+        default=lambda: datetime.now(timezone.utc)
     )
     resume_id = Column(
         Integer,
@@ -136,6 +191,18 @@ class JobApplication(Base):
     updated_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc)
+    )
+    user = relationship(
+        "User",
+        back_populates="applications"
+    )
+    resumes = relationship(
+        "Resume",
+        back_populates="applications"
+    )
+    jobs = relationship(
+        "Job",
+        back_populates="applications"
     )
 
 class Education(Base):
@@ -152,6 +219,10 @@ class Education(Base):
     end_year = Column(Integer)
     cgpa = Column(String)
     description = Column(Text)
+    user = relationship(
+        "User",
+        back_populates="educations"
+    )
 
 class Experience(Base):
     __tablename__ = "experiences"
@@ -169,6 +240,10 @@ class Experience(Base):
         Boolean,
         default=False
     )
+    user = relationship(
+        "User",
+        back_populates="experiences"
+    )
 
 class Skill(Base):
     __tablename__ = "skills"
@@ -178,6 +253,10 @@ class Skill(Base):
         ForeignKey("users.id")
     )
     name = Column(String)
+    user = relationship(
+        "User",
+        back_populates="skills"
+    )
 
 class Resume(Base):
     __tablename__ = "resumes"
@@ -188,12 +267,20 @@ class Resume(Base):
     parsed = Column(Boolean, default=False)
     uploaded_at = Column(
         DateTime,
-        default=datetime.now(timezone.utc)
+        default=lambda: datetime.now(timezone.utc)
     )
     parsed_json = Column(Text)
     is_primary = Column(
         Boolean,
         default=False
+    )
+    user = relationship(
+        "User",
+        back_populates="resumes"
+    )
+    applications = relationship(
+        "JobApplication",
+        back_populates="resumes"
     )
 
 Base.metadata.create_all(bind=engine)

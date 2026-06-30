@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import api from "../api/api";
 
 export default function UserRegister() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    full_name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -38,7 +40,8 @@ export default function UserRegister() {
       const res = await axios.post(
         "http://localhost:8070/auth/user/register",
         {
-          full_name: formData.full_name,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
           email: formData.email,
           password: formData.password,
         }
@@ -49,7 +52,7 @@ export default function UserRegister() {
         res.data.access_token
       );
 
-      navigate("user//dashboard");
+      navigate("/user/dashboard");
     } catch (err) {
       console.log(err.response.data);
       setError(
@@ -81,9 +84,19 @@ export default function UserRegister() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            name="full_name"
-            placeholder="Full Name"
-            value={formData.full_name}
+            name="first_name"
+            placeholder="First Name"
+            value={formData.first_name}
+            onChange={handleChange}
+            required
+            className="w-full border p-3 rounded-lg"
+          />
+
+          <input
+            type="text"
+            name="last_name"
+            placeholder="Last Name"
+            value={formData.last_name}
             onChange={handleChange}
             required
             className="w-full border p-3 rounded-lg"

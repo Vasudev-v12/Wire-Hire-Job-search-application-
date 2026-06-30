@@ -1,79 +1,85 @@
 from pypdf import PdfReader
 import json
 from google import genai
-from envConfig import GEMINI_API_KEY
-from api_server.db import UserProfile
+from google.genai.types import GenerateContentConfig
+from api_server.envConfig import GEMINI_API_KEY
 
-client = genai.Client(
-    api_key=GEMINI_API_KEY
-)
+client = genai.Client(api_key=GEMINI_API_KEY)
+
 
 def extract_pdf_text(path: str):
     reader = PdfReader(path)
 
     text = ""
     for page in reader.pages:
-        text += page.extract_text() + "\n"
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text + "\n"
 
     return text
-def get_keywords(path: str):
+
+
+def get_resume_data(path: str):
+    resume_text = extract_pdf_text(path)
+
     prompt = f"""
-    Extract resume information and return ONLY JSON.
+Extract the following information from the resume.
 
-    Schema:
+Return ONLY valid JSON.
 
-    {{
-    "first_name":"",
-    "last_name":"",
-    "phone":"",
-    "location":"",
-    "summary":"",
+{{
+    "first_name": "",
+    "last_name": "",
+    "phone": "",
+    "location": "",
+    "headline": "",
+    "summary": "",
+    "current_role": "",
+    "experience": "",
 
-    "skills":[
-        "Python",
-        "FastAPI"
-    ],
+    "skills": [],
 
-    "education":[
+    "education": [
         {{
-        "institution":"",
-        "degree":"",
-        "field_of_study":"",
-        "start_year":"",
-        "end_year":""
+            "institution": "",
+            "degree": "",
+            "field_of_study": "",
+            "start_year": "",
+            "end_year": ""
         }}
     ],
 
-    "experience":[
+    "experience_details": [
         {{
-        "company_name":"",
-        "position":"",
-        "description":"",
-        "start_date":"",
-        "end_date":""
+            "company_name": "",
+            "position": "",
+            "description": "",
+            "start_date": "",
+            "end_date": ""
         }}
-    ]
-    }}
+    ],
 
-    Resume:
+    "github": "",
+    "linkedin": "",
+    "portfolio": ""
+}}
 
-    {extract_pdf_text(path)}
-    """
+Resume:
+
+{resume_text}
+"""
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=prompt
+        contents=prompt,
+        config=GenerateContentConfig(
+            response_mime_type="application/json"
+        )
     )
 
-    data = json.loads(response.text)
+    text = response.text.strip()
+    if text.startswith("```json"):
+        text = text.removeprefix("```json").removesuffix("```").strip()
+    data = json.loads(text)
 
-    profile = UserProfile(
-        user_id=user.id,
-        first_name=data["first_name"],
-        last_name=data["last_name"],
-        phone=data["phone"],
-        location=data["location"],
-        summary=data["summary"]
-    )
-
-    db.add(profile)
+    return data

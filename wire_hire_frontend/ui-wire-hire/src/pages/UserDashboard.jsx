@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { LogOut, Sparkles, Briefcase, User, Building2 ,MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Profile from "./UserProfile";
+import Profile from "./Profile";
 import BussinessDashboard from "./Bussiness";
 //const navigate = useNavigate();
 
@@ -97,12 +97,15 @@ function FilterPanel(){
         <option>Chennai</option>
         <option>Remote</option>
       </select>
+      <br/>
+      
       <select className="bg-slate-50 border border-slate-300 focus:border-blue-500">
         <option>Experience</option>
         <option>Fresher</option>
         <option>1-3 Years</option>
         <option>3+ Years</option>
       </select>
+      <br/>
       <select className="bg-slate-50 border border-slate-300 focus:border-blue-500">
         <option>Job Type</option>
         <option>Remote</option>
@@ -177,6 +180,8 @@ export default function UserDashboard() {
         }
   ];
 
+  const userInfo = JSON.parse(localStorage.getItem("user"));
+
   return (
       <div className="min-h-screen bg-slate-50 flex">
         <Sidebar page={page} setPage={setPage}/>
@@ -184,7 +189,7 @@ export default function UserDashboard() {
           {page==="jobs" && (
             <div>
               <h1 className="text-3xl font-bold mb-6">
-                Find Your Dream Job
+                Hi {userInfo?.first_name ? `${ userInfo.first_name }, Looking for a job?` : "User, please set your profile !" }
               </h1>
               <div className="grid grid-cols-12 gap-6">
 
